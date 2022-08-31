@@ -48,10 +48,6 @@ defmodule ConcreteBehaviour do
   end
 end
 
-defmodule CollaboratorBehaviour do
-  @callback fun :: boolean()
-end
-
 defmodule Collaborator do
   use ConcreteBehaviour
   import ConcreteBehaviour
