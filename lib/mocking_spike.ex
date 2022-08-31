@@ -16,11 +16,7 @@ defmodule ConcreteBehaviour do
     callbacks =
       __CALLER__.module
       |> Attributes.get([:specs])
-      |> Enum.map(fn a ->
-        quote do
-          @callback unquote(a)
-        end
-      end)
+      |> Enum.map(fn spec -> quote(do: @callback(unquote(spec))) end)
 
     quote do
       Kernel.defmodule(Behaviour, do: {:body, [], unquote(callbacks)})
@@ -28,29 +24,22 @@ defmodule ConcreteBehaviour do
     end
   end
 
-  defmacro @({:spec, _, spec_body} = val) do
+  defmacro @({:spec, _, spec_body} = spec) do
     quote do
-      Attributes.update(
-        __MODULE__,
-        [:specs],
-        [],
-        &(&1 ++ unquote(Macro.escape(spec_body)))
-      )
-
-      Kernel.@(unquote(val))
+      Attributes.update(__MODULE__, [:specs], &(&1 ++ unquote(Macro.escape(spec_body))))
+      Kernel.@(unquote(spec))
     end
   end
 
-  defmacro @val do
+  defmacro @spec do
     quote do
-      Kernel.@(unquote(val))
+      Kernel.@(unquote(spec))
     end
   end
 end
 
 defmodule Collaborator do
   use ConcreteBehaviour
-  import ConcreteBehaviour
 
   @spec fun :: boolean()
   def fun, do: true
@@ -60,17 +49,9 @@ defmodule Collaborator do
 end
 
 defmodule MockingSpike do
-  @moduledoc """
-  Documentation for `MockingSpike`.
-  """
-
   @spec hello :: boolean()
-  def hello do
-    Collaborator.fun()
-  end
+  def hello, do: Collaborator.fun()
 
   @spec hello2 :: String.t()
-  def hello2 do
-    Collaborator.fun2()
-  end
+  def hello2, do: Collaborator.fun2()
 end
