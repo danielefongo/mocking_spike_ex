@@ -1,18 +1,20 @@
+defmodule CollaboratorBehaviour do
+  @callback fun :: boolean()
+end
+
+defmodule Collaborator do
+  @behaviour CollaboratorBehaviour
+  @spec fun :: boolean()
+  def fun, do: true
+end
+
 defmodule MockingSpike do
   @moduledoc """
   Documentation for `MockingSpike`.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> MockingSpike.hello()
-      :world
-
-  """
+  @spec hello :: boolean()
   def hello do
-    :world
+    Collaborator.fun()
   end
 end
