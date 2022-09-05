@@ -38,6 +38,27 @@ defmodule ConcreteBehaviour do
   end
 end
 
+defmodule MockTest do
+  defmacro mock(module, bindings) do
+    Enum.map(bindings, fn {collaborator, mock} ->
+      quote do
+        defmock(unquote(mock), for: unquote(collaborator).Behaviour)
+        rewire(unquote(module), [{unquote(collaborator), unquote(mock)}])
+      end
+    end)
+  end
+
+  defmacro __using__(_) do
+    quote do
+      require MockTest
+      import MockTest
+      import Hammox
+      import Rewire
+      setup :verify_on_exit!
+    end
+  end
+end
+
 defmodule Collaborator do
   use ConcreteBehaviour
 
