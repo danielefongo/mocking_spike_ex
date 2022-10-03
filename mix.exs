@@ -23,10 +23,7 @@ defmodule MockingSpike.MixProject do
     [
       {:hammox, "~> 0.7", only: :test},
       {:rewire, "~> 0.8", only: :test},
-      {:attributes, "~> 0.4.0"},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
   end
 end

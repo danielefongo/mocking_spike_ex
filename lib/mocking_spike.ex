@@ -5,7 +5,7 @@ defmodule ConcreteBehaviour do
       require ConcreteBehaviour
       import ConcreteBehaviour
 
-      Attributes.set(__MODULE__, [:specs], [])
+      Module.put_attribute(__MODULE__, :specs, %{funs: []})
 
       @behaviour __MODULE__.Behaviour
       @before_compile ConcreteBehaviour
@@ -15,18 +15,25 @@ defmodule ConcreteBehaviour do
   defmacro __before_compile__(_) do
     callbacks =
       __CALLER__.module
-      |> Attributes.get([:specs])
+      |> Module.get_attribute(:specs)
+      |> Map.get(:funs)
       |> Enum.map(fn spec -> quote(do: @callback(unquote(spec))) end)
 
     quote do
       Kernel.defmodule(Behaviour, do: {:body, [], unquote(callbacks)})
-      Attributes.delete(__MODULE__, [:specs])
+      Module.delete_attribute(__MODULE__, :specs)
     end
   end
 
   defmacro @({:spec, _, spec_body} = spec) do
     quote do
-      Attributes.update(__MODULE__, [:specs], &(&1 ++ unquote(Macro.escape(spec_body))))
+      new_specs =
+        __MODULE__
+        |> Module.get_attribute(:specs)
+        |> update_in([:funs], &(&1 ++ unquote(Macro.escape(spec_body))))
+
+      Module.put_attribute(__MODULE__, :specs, new_specs)
+
       Kernel.@(unquote(spec))
     end
   end
